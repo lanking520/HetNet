@@ -131,7 +131,6 @@ public class SystemListFetcher extends IntentService {
       * All kernel wake locks
       * mAh values then percentage values */
       while ((line = reader.readLine()) != null) {
-        Log.v(LOG_TAG, line);
         //Skip the next line (empty)
         reader.readLine();
 
@@ -179,10 +178,9 @@ public class SystemListFetcher extends IntentService {
 
       ApplicationList list = m_applicationListMap.get(pair.getKey());
 
-      if (list == null) {
-        Log.v(LOG_TAG, "UID :" + pair.getKey() + " is not present");
+      if (list == null)
         continue;
-      }
+
 
       list.setBatteryMah(pair.getValue());
       list.setBatteryPercent(pair.getValue() / powerSum);
@@ -199,7 +197,6 @@ public class SystemListFetcher extends IntentService {
     long txPackets = TrafficStats.getTotalTxPackets();
 
     if (rxBytes == TrafficStats.UNSUPPORTED || txBytes == TrafficStats.UNSUPPORTED) {
-      Log.e(LOG_TAG, "Your device does not support traffic stat monitoring");
       return;
     }
 
@@ -236,9 +233,6 @@ public class SystemListFetcher extends IntentService {
         m_applicationListMap.get(processInfo.uid).setPrivateDirty(memoryStats[1]);
         m_applicationListMap.get(processInfo.uid).setPss(memoryStats[2]);
         m_applicationListMap.get(processInfo.uid).setUss(memoryStats[3]);
-      }
-      else{
-        Log.e(LOG_TAG, "Missing process " + processInfo.processName + "\t" + processInfo.uid);
       }
     }
   }
@@ -412,9 +406,6 @@ public class SystemListFetcher extends IntentService {
         if(uid == -1){
           if(lineOutput[8].contains("u0_a")){
             uid = 10000 + Integer.parseInt(lineOutput[8].substring(4));
-          }
-          else{
-            Log.v(LOG_TAG, "Unable to parse " + line);
           }
         }
 

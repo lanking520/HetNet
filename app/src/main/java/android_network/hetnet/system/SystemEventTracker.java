@@ -118,8 +118,6 @@ public class SystemEventTracker extends Service {
       if (!(newName.equals(m_currentName)) && !(newName.equals(""))) {
         EventBus.getDefault().post(new SystemTriggerEvent(SYSTEM_EVENT_TRACKER, newName, Calendar.getInstance().getTime()));
         m_currentName = new String(newName);
-
-        Log.v(LOG_TAG, "Foreground application has been switched to " + newName);
       }
     }
   }

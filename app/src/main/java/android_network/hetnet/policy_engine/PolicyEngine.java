@@ -69,6 +69,7 @@ public class PolicyEngine extends Service {
 
     Intent locationEventTrackerService = new Intent(this, LocationEventTracker.class);
     this.startService(locationEventTrackerService);
+
   }
 
   @Override
@@ -113,7 +114,6 @@ public class PolicyEngine extends Service {
                 service.service.getClassName().equals(NetworkListFetcher.class.toString()) ||
                 service.service.getClassName().equals(LocationFetcher.class.toString()))
           allComplete = false;
-          Log.v(LOG_TAG, "Service: " + service.service.getClassName());
       }
     }while(!allComplete);
   }

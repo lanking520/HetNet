@@ -1,5 +1,7 @@
 package android_network.hetnet.cloud;
 
+import android.util.Log;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.InputStreamReader;
@@ -79,8 +81,7 @@ public class HttpService  {
 
       br.close();
       result = sb.toString();
-      System.out.println(result);
-
+      Log.d("RES", result);
     }
 
     private static String urlEncodeUTF8(String s) {

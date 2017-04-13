@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".vpn_service.ActivityLog">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/myTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:textAppearance="@style/TextSmall"
+            android:layout_margin="5dp"
+            android:textSize="12sp"/>
+
+        <ImageView
+            android:id="@+id/myIcon"
+            android:layout_width="24dip"
+            android:layout_height="24dip"
+            android:layout_margin="5dp"
+            android:layout_gravity="center_vertical" />
+
+        <TextView
+            android:id="@+id/myProtocol"
+            android:layout_width="40dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:textAppearance="@style/TextSmall"
+            android:layout_margin="5dp"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/mySPort"
+            android:layout_width="40dp"
+            android:layout_height="wrap_content"
+            android:gravity="end"
+            android:textAppearance="@style/TextSmall"
+            android:layout_margin="5dp"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/mySAddr"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextSmall"
+            android:layout_margin="5dp"
+            android:textSize="12sp" />
+
+
+
+        <TextView
+            android:id="@+id/myDPort"
+            android:layout_width="40dp"
+            android:layout_height="wrap_content"
+            android:gravity="end"
+            android:textAppearance="@style/TextSmall"
+            android:layout_margin="5dp"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/myDAddr"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextSmall"
+            android:layout_margin="5dp"
+            android:textSize="12sp" />
+    </LinearLayout>
+</LinearLayout>

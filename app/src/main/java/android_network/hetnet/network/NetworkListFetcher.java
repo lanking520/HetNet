@@ -151,11 +151,9 @@ public class NetworkListFetcher extends IntentService {
     public void onReceive(Context context, Intent intent) {
 
       List<ScanResult> wifiList = wifiManager.getScanResults();
-
       // gets maximum network speed
       double max_speed = wifiManager.getConnectionInfo().getLinkSpeed();
 
-      int i = 0;
       for (ScanResult result : wifiList) {
 
         Network network = new Network();
@@ -177,7 +175,6 @@ public class NetworkListFetcher extends IntentService {
 
         // TBD
         SecurityManager.checkNetworkConnectivity(network);
-
 
         // this class not used atm can be removed
         //NetworkAdditionalInfo.getTimeToConnect(network);
@@ -206,7 +203,6 @@ public class NetworkListFetcher extends IntentService {
 
         networkList.add(network);
 
-        i++;
       }
 
       wifiDataReceived = true;

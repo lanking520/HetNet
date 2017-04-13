@@ -13,6 +13,9 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.GET_TASKS"/>
     <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission
         android:name="android.permission.PACKAGE_USAGE_STATS"
         tools:ignore="ProtectedPermissions"/>
@@ -58,6 +61,160 @@
         <service
             android:name=".cloud.SendCloud"
             android:exported="false"/>
+        <service
+            android:name=".cloud.AppDataService"
+            android:exported="false"/>
+
+        <activity
+            android:name=".vpn_service.ActivitySettings"
+            android:configChanges="orientation|screenSize"
+            android:label="@string/menu_settings"
+            android:parentActivityName=".MainActivity">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE_PREFERENCES" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.APPLICATION_PREFERENCES" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity" />
+        </activity>
+
+        <activity
+            android:name=".vpn_service.ActivityLog"
+            android:configChanges="orientation|screenSize"
+            android:label="@string/menu_log"
+            android:parentActivityName=".MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity" />
+        </activity>
+
+        <activity
+            android:name=".vpn_service.myLog"
+            android:configChanges="orientation|screenSize"
+            android:label="My Log"
+            android:parentActivityName=".MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity" />
+        </activity>
+
+        <activity
+            android:name=".vpn_service.ActivityTraffic"
+            android:configChanges="orientation|screenSize"
+            android:label="Traffic Log"
+            android:parentActivityName=".MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity" />
+        </activity>
+
+        <activity
+            android:name=".vpn_service.ActivityStats"
+            android:configChanges="orientation|screenSize"
+            android:label="Statistics Log"
+            android:parentActivityName=".MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity" />
+        </activity>
+
+        <activity
+            android:name=".vpn_service.ActivityDns"
+            android:configChanges="orientation|screenSize"
+            android:label="@string/setting_show_resolved"
+            android:parentActivityName=".vpn_service.ActivitySettings">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".vpn_service.ActivitySettings" />
+        </activity>
+
+        <activity
+            android:name=".vpn_service.ActivityForwarding"
+            android:configChanges="orientation|screenSize"
+            android:label="@string/setting_forwarding"
+            android:parentActivityName=".vpn_service.ActivitySettings">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".vpn_service.ActivitySettings" />
+        </activity>
+
+        <activity
+            android:name=".vpn_service.ActivityForwardApproval"
+            android:configChanges="orientation|screenSize"
+            android:label="@string/app_name"
+            android:theme="@style/AppDialog">
+            <intent-filter>
+                <action android:name="eu.faircode.netguard.START_PORT_FORWARD" />
+                <action android:name="eu.faircode.netguard.STOP_PORT_FORWARD" />
+            </intent-filter>
+        </activity>
+
+        <service
+            android:name=".vpn_service.ServiceSinkhole"
+            android:label="@string/app_name"
+            android:permission="android.permission.BIND_VPN_SERVICE">
+            <intent-filter>
+                <action android:name="android.net.VpnService" />
+            </intent-filter>
+        </service>
+
+        <service
+            android:name=".vpn_service.ServiceExternal"
+            android:label="@string/app_name">
+            <intent-filter>
+                <action android:name="eu.faircode.netguard.DOWNLOAD_HOSTS_FILE" />
+            </intent-filter>
+        </service>
+
+        <service
+            android:name=".vpn_service.ServiceTileMain"
+            android:icon="@drawable/ic_security_white_24dp"
+            android:label="@string/app_name"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
+
+        <service
+            android:name=".vpn_service.ServiceTileGraph"
+            android:icon="@drawable/ic_equalizer_white_24dp"
+            android:label="@string/setting_stats_category"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
+
+        <service
+            android:name=".vpn_service.ServiceTileFilter"
+            android:icon="@drawable/ic_filter_list_white_24dp"
+            android:label="@string/setting_filter"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
+
+        <receiver
+            android:name=".vpn_service.Receiver"
+            android:label="@string/app_name">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.PACKAGE_ADDED" />
+                <action android:name="android.intent.action.PACKAGE_REMOVED" />
+
+                <data android:scheme="package" />
+            </intent-filter>
+        </receiver>
 
         <uses-feature
             android:name="android.hardware.nfc"
