@@ -61,11 +61,11 @@ public class PolicyEngine extends Service {
     super.onCreate();
     EventBus.getDefault().register(this);
 
-    Intent networkEventTrackerService = new Intent(this, NetworkEventTracker.class);
-    this.startService(networkEventTrackerService);
+    //Intent networkEventTrackerService = new Intent(this, NetworkEventTracker.class);
+    //this.startService(networkEventTrackerService);
 
-    Intent systemEventTrackerService = new Intent(this, SystemEventTracker.class);
-    this.startService(systemEventTrackerService);
+    //Intent systemEventTrackerService = new Intent(this, SystemEventTracker.class);
+    //this.startService(systemEventTrackerService);
 
     Intent locationEventTrackerService = new Intent(this, LocationEventTracker.class);
     this.startService(locationEventTrackerService);
@@ -92,16 +92,15 @@ public class PolicyEngine extends Service {
     currentStateVector = new PolicyVector();
 
     //Wait for the previous loop of IntentService to finish
-    waitForIntentServiceToComplete();
+    //waitForIntentServiceToComplete();
 
     locationFetcherService = new Intent(this, LocationFetcher.class);
     this.startService(locationFetcherService);
+    //networkListFetcherService = new Intent(this, NetworkListFetcher.class);
+    //this.startService(networkListFetcherService);
 
-    networkListFetcherService = new Intent(this, NetworkListFetcher.class);
-    this.startService(networkListFetcherService);
-
-    systemListFetcherService = new Intent(this, SystemListFetcher.class);
-    this.startService(systemListFetcherService);
+    //systemListFetcherService = new Intent(this, SystemListFetcher.class);
+    //this.startService(systemListFetcherService);
   }
 
   private void waitForIntentServiceToComplete(){
@@ -126,71 +125,71 @@ public class PolicyEngine extends Service {
       location = event.getLocation();
       currentStateVector.setLatitude(location.getLatitude());
       currentStateVector.setLongitude(location.getLongitude());
-      checkDataAndSendData();
+      //checkDataAndSendData();
     }
   }
 
-  @Subscribe(threadMode = ThreadMode.ASYNC)
-  public void onMessageEvent(NetworkResponseEvent event) {
-    networkDataReceived = true;
-    this.stopService(networkListFetcherService);
-    networkList = event.getListOfNetworks();
-    networkList = getRankedNetworkList(networkList);
+//  @Subscribe(threadMode = ThreadMode.ASYNC)
+//  public void onMessageEvent(NetworkResponseEvent event) {
+//    networkDataReceived = true;
+//    this.stopService(networkListFetcherService);
+//    networkList = event.getListOfNetworks();
+//    networkList = getRankedNetworkList(networkList);
+//
+//    for (Network network : networkList) {
+//      if (network.isCurrentNetwork()) {
+//        currentStateVector.setNetworkSSID(network.getNetworkSSID());
+//        currentStateVector.setBandwidth(network.getBandwidth());
+//        currentStateVector.setSignalStrength(network.getSignalStrength());
+//        currentStateVector.setSignalFrequency(network.getSignalFrequency());
+//        currentStateVector.setTimeToConnect(network.getTimeToConnect());
+//        currentStateVector.setCost(network.getCost());
+//        break;
+//      }
+//    }
+//
+//    //checkDataAndSendData();
+//  }
+//
+//  @Subscribe(threadMode = ThreadMode.ASYNC)
+//  public void onMessageEvent(SystemResponseEvent event) {
+//    systemDataReceived = true;
+//    application = SystemList.getForegroundApplication(event.getSystemList());
+//    systemList = event.getSystemList();
+//
+//    this.stopService(systemListFetcherService);
+//
+//    currentStateVector.setApplicationID(application.getApplicationID());
+//    currentStateVector.setApplicationType(application.getApplicationType());
+//    //checkDataAndSendData();
+//  }
 
-    for (Network network : networkList) {
-      if (network.isCurrentNetwork()) {
-        currentStateVector.setNetworkSSID(network.getNetworkSSID());
-        currentStateVector.setBandwidth(network.getBandwidth());
-        currentStateVector.setSignalStrength(network.getSignalStrength());
-        currentStateVector.setSignalFrequency(network.getSignalFrequency());
-        currentStateVector.setTimeToConnect(network.getTimeToConnect());
-        currentStateVector.setCost(network.getCost());
-        break;
-      }
-    }
-
-    checkDataAndSendData();
-  }
-
-  @Subscribe(threadMode = ThreadMode.ASYNC)
-  public void onMessageEvent(SystemResponseEvent event) {
-    systemDataReceived = true;
-    application = SystemList.getForegroundApplication(event.getSystemList());
-    systemList = event.getSystemList();
-
-    this.stopService(systemListFetcherService);
-
-    currentStateVector.setApplicationID(application.getApplicationID());
-    currentStateVector.setApplicationType(application.getApplicationType());
-    checkDataAndSendData();
-  }
-
-  private void checkDataAndSendData() {
-    if (networkDataReceived && locationDataReceived && systemDataReceived) {
-      ruleVector = DummyMachineLearningEngine.getPolicyRuleVector(location, application);
-      DataStoreObject dataStoreObject = new DataStoreObject(application.getApplicationID(), application.getApplicationType(), location.getLatitude(),
-        location.getLongitude(), networkList, systemList);
-      //dataStoreObject.setSystemList(systemList);
-      sendDataToCloud(dataStoreObject);
-      PolicyEngineData data = new PolicyEngineData(ruleVector, currentStateVector, dataStoreObject);
-      EventBus.getDefault().post(new UITriggerEvent(Constants.POLICY_ENGINE, data, Calendar.getInstance().getTime()));
-    }
-  }
-
-  private void sendDataToCloud(DataStoreObject dataStoreObject) {
-    ArrayList<DataStoreObject> dataStoreObjectList = createDataStoreList(dataStoreObject);
-    Intent cloudService = new Intent(this, SendCloud.class);
-    cloudService.putExtra("currentData", dataStoreObjectList);
-    this.startService(cloudService);
-  }
-
-  private ArrayList<DataStoreObject> createDataStoreList(DataStoreObject dataStoreObject) {
-    ArrayList<DataStoreObject> dataStoreObjectList = new ArrayList<>();
-    dataStoreObjectList.add(dataStoreObject);
-    return dataStoreObjectList;
-  }
-
-  private List<Network> getRankedNetworkList(List<Network> networkList) {
-    return networkList;
-  }
+//  private void checkDataAndSendData() {
+//    if (networkDataReceived && locationDataReceived && systemDataReceived) {
+//      ruleVector = DummyMachineLearningEngine.getPolicyRuleVector(location, application);
+//      DataStoreObject dataStoreObject = new DataStoreObject(application.getApplicationID(), application.getApplicationType(), location.getLatitude(),
+//        location.getLongitude(), networkList, systemList);
+//      //dataStoreObject.setSystemList(systemList);
+//      //sendDataToCloud(dataStoreObject);
+//      PolicyEngineData data = new PolicyEngineData(ruleVector, currentStateVector, dataStoreObject);
+//      EventBus.getDefault().post(new UITriggerEvent(Constants.POLICY_ENGINE, data, Calendar.getInstance().getTime()));
+//    }
+//  }
+//
+//  private void sendDataToCloud(DataStoreObject dataStoreObject) {
+//    ArrayList<DataStoreObject> dataStoreObjectList = createDataStoreList(dataStoreObject);
+//    Intent cloudService = new Intent(this, SendCloud.class);
+//    cloudService.putExtra("currentData", dataStoreObjectList);
+//    this.startService(cloudService);
+//  }
+//
+//  private ArrayList<DataStoreObject> createDataStoreList(DataStoreObject dataStoreObject) {
+//    ArrayList<DataStoreObject> dataStoreObjectList = new ArrayList<>();
+//    dataStoreObjectList.add(dataStoreObject);
+//    return dataStoreObjectList;
+//  }
+//
+//  private List<Network> getRankedNetworkList(List<Network> networkList) {
+//    return networkList;
+//  }
 }
