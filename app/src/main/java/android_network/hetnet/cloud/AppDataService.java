@@ -36,10 +36,12 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import android_network.hetnet.data.Network;
 import android_network.hetnet.network.NetworkAdditionalInfo;
 import android_network.hetnet.network.SecurityManager;
+import android_network.hetnet.network.TestSpeed;
 import android_network.hetnet.vpn_service.DatabaseHelper;
 
 /**
@@ -49,11 +51,13 @@ import android_network.hetnet.vpn_service.DatabaseHelper;
 public class AppDataService extends IntentService {
     private String PreUrl= "http://34.201.21.219:8111";
     private String android_id;
+    private HttpService cloudsender = new HttpService();
 
     static WifiManager wifiManager;
     TelephonyManager telephonyManager;
     List<Network> networkList = new ArrayList<>();
     boolean wifiDataReceived = false;
+    TestSpeed speeder = new TestSpeed();
 
     static long startT;
     static long endT;
@@ -75,11 +79,49 @@ public class AppDataService extends IntentService {
         getWifiInfo();
         getLTEInfo();
         getLocation();
-        //Log.i("NETWORK INFO",networkList.toString());
+
+        android_id= Settings.Secure.getString(this.getContentResolver(), Settings.Secure.ANDROID_ID);
+        Date curr= Calendar.getInstance().getTime();
+        //speeder.startDownLoad();
+        Log.i("NETWORK INFO",networkList.toString());
         Log.i("Location INFO", location.toString());
+
         try {
+            NetworkPoster(networkList, curr, android_id, location.getLongitude(), location.getLatitude(), PreUrl+"/network");
             TrafficPoster(PreUrl+"/appdata");
         } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void NetworkPoster(List<Network> networks, Date current, String DeviceID, double Longtitue, double Latitude , String url) throws JSONException {
+        Map<String, Object> temp = new HashMap<>();
+        temp.put("Time", current.toString());
+        temp.put("device_id", DeviceID);
+        temp.put("location", String.valueOf(Longtitue)+","+String.valueOf(Latitude));
+        JSONArray passednetwork = new JSONArray();
+        JSONObject submission = new JSONObject(temp);
+        Set<String> networkClean = new HashSet<>();
+        for(Network net : networks){
+            if(!networkClean.contains(net.getNetworkSSID())){
+                networkClean.add(net.getNetworkSSID());
+                Map<String, Object> tempnet = new HashMap<>();
+                tempnet.put("bandwidth", net.getBandwidth());
+                //tempnet.put("Cost", net.getCost());
+                tempnet.put("ssid", net.getNetworkSSID());
+                tempnet.put("security", net.getSecurityProtocol());
+                //tempnet.put("SignalFrequency", net.getSignalFrequency());
+                //tempnet.put("TimeToConnect", net.getTimeToConnect());
+                tempnet.put("avgss", net.getSignalStrength());
+                passednetwork.put(new JSONObject(tempnet));
+            }
+        }
+        submission.put("Networks", passednetwork);
+
+        try {
+            Log.i("SendCloud",submission.toString());
+            cloudsender.POST(url, submission.toString());
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
