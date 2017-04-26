@@ -14,4 +14,7 @@ public class Constants {
   public static final String LOCATION_EVENT_TRACKER = "LOCATION_EVENT_TRACKER";
 
   public static final String LOCATION_LIST_FETCHER = "LOCATION_LIST_FETCHER";
+
+  public static final String CONNECTION_EVAL_LISTENER = "CONNECTION_EVAL_LISTENER";
+  public static final String CONNECTION_EVAL_FETCHER = "CONNECTION_EVAL_FETCHER";
 }

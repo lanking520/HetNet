@@ -64,6 +64,11 @@
         <service
             android:name=".cloud.AppDataService"
             android:exported="false"/>
+        <service
+            android:name=".networkcap.ConnectionListener"
+            android:exported="false"/>
+        <service android:name=".networkcap.ConnectionListener"
+            android:exported="false"/>
 
         <activity
             android:name=".vpn_service.ActivitySettings"

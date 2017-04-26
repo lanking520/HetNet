@@ -24,6 +24,7 @@ import android_network.hetnet.common.trigger_events.UITriggerEvent;
 import android_network.hetnet.data.Application;
 import android_network.hetnet.data.DataStoreObject;
 import android_network.hetnet.data.Network;
+import android_network.hetnet.data.NetworkEvaluation;
 import android_network.hetnet.data.PolicyEngineData;
 import android_network.hetnet.data.PolicyVector;
 import android_network.hetnet.location.LocationEventTracker;
@@ -32,17 +33,23 @@ import android_network.hetnet.location.LocationResponseEvent;
 import android_network.hetnet.network.NetworkEventTracker;
 import android_network.hetnet.network.NetworkListFetcher;
 import android_network.hetnet.network.NetworkResponseEvent;
+import android_network.hetnet.networkcap.ConnectionEvalFetcher;
+import android_network.hetnet.networkcap.ConnectionListener;
+import android_network.hetnet.networkcap.ConnectionResponseEvent;
+import android_network.hetnet.networkcap.ConnectionEvalFetcher;
 import android_network.hetnet.system.SystemEventTracker;
 import android_network.hetnet.system.SystemList;
 import android_network.hetnet.system.SystemListFetcher;
 import android_network.hetnet.system.SystemResponseEvent;
 
+import static android_network.hetnet.common.Constants.CONNECTION_EVAL_LISTENER;
+
 public class PolicyEngine extends Service {
   private static final String LOG_TAG = "PolicyEngine";
 
-  Intent networkListFetcherService;
-  Intent locationFetcherService;
-  Intent systemListFetcherService;
+  // Intent networkListFetcherService;
+  // Intent locationFetcherService;
+  // Intent systemListFetcherService;
 
   PolicyVector ruleVector;
   PolicyVector currentStateVector;
@@ -67,9 +74,10 @@ public class PolicyEngine extends Service {
     //Intent systemEventTrackerService = new Intent(this, SystemEventTracker.class);
     //this.startService(systemEventTrackerService);
 
-    Intent locationEventTrackerService = new Intent(this, LocationEventTracker.class);
-    this.startService(locationEventTrackerService);
-
+    //Intent locationEventTrackerService = new Intent(this, LocationEventTracker.class);
+    //this.startService(locationEventTrackerService);
+    Intent connectionListenerService = new Intent(this, ConnectionListener.class);
+    this.startService(connectionListenerService);
   }
 
   @Override
@@ -83,51 +91,75 @@ public class PolicyEngine extends Service {
     return null;
   }
 
+  // Connection Response Event Tracker
+  @Subscribe(threadMode = ThreadMode.ASYNC)
+  public void onMessageEvent(ConnectionResponseEvent event) {
+    // TODO: Call something to publish the data to the cloud...
+    NetworkEvaluation eval =  event.getEvaluation();
+    // TODO: Use the sample code below for publishing to the cloud
+    //    Intent cloudService = new Intent(this, SendCloud.class);
+    //    cloudService.putExtra("currentData", dataStoreObjectList);
+    //    this.startService(cloudService);
+
+  }
+
   @Subscribe(threadMode = ThreadMode.ASYNC)
   public void onMessageEvent(TriggerEvent event) {
-    locationDataReceived = networkDataReceived = systemDataReceived = false;
-
-    EventBus.getDefault().post(new UITriggerEvent(event.getEventOriginator(), event.getEventName(), event.getTimeOfEvent()));
-
-    currentStateVector = new PolicyVector();
-
-    //Wait for the previous loop of IntentService to finish
-    //waitForIntentServiceToComplete();
-
-    locationFetcherService = new Intent(this, LocationFetcher.class);
-    this.startService(locationFetcherService);
-    //networkListFetcherService = new Intent(this, NetworkListFetcher.class);
-    //this.startService(networkListFetcherService);
-
-    //systemListFetcherService = new Intent(this, SystemListFetcher.class);
-    //this.startService(systemListFetcherService);
-  }
-
-  private void waitForIntentServiceToComplete(){
-    boolean allComplete = true;
-
-    do {
-      ActivityManager manager = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
-      for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
-        if (    service.service.getClassName().equals(SystemListFetcher.class.toString()) ||
-                service.service.getClassName().equals(NetworkListFetcher.class.toString()) ||
-                service.service.getClassName().equals(LocationFetcher.class.toString()))
-          allComplete = false;
-      }
-    }while(!allComplete);
-  }
-
-  @Subscribe(threadMode = ThreadMode.ASYNC)
-  public void onMessageEvent(LocationResponseEvent event) {
-    if (event.getLocation() != null) {
-      locationDataReceived = true;
-      this.stopService(locationFetcherService);
-      location = event.getLocation();
-      currentStateVector.setLatitude(location.getLatitude());
-      currentStateVector.setLongitude(location.getLongitude());
-      //checkDataAndSendData();
+    // Deal With the Connection Evaluation Listener Response
+      if(event.getEventName().equals(CONNECTION_EVAL_LISTENER)){
+        // Start Fetching data
+        Intent connctionEvalFetcherService = new Intent(this, ConnectionEvalFetcher.class);
+        this.startService(connctionEvalFetcherService);
     }
   }
+
+  // 2016: The Trigger Event Handler
+//  @Subscribe(threadMode = ThreadMode.ASYNC)
+//  public void onMessageEvent(TriggerEvent event) {
+//    locationDataReceived = networkDataReceived = systemDataReceived = false;
+//
+//    EventBus.getDefault().post(new UITriggerEvent(event.getEventOriginator(), event.getEventName(), event.getTimeOfEvent()));
+//
+//    currentStateVector = new PolicyVector();
+//
+//    //Wait for the previous loop of IntentService to finish
+//    //waitForIntentServiceToComplete();
+//
+//    locationFetcherService = new Intent(this, LocationFetcher.class);
+//    this.startService(locationFetcherService);
+//    //networkListFetcherService = new Intent(this, NetworkListFetcher.class);
+//    //this.startService(networkListFetcherService);
+//
+//    //systemListFetcherService = new Intent(this, SystemListFetcher.class);
+//    //this.startService(systemListFetcherService);
+//  }
+
+//  private void waitForIntentServiceToComplete(){
+//    boolean allComplete = true;
+//
+//    do {
+//      ActivityManager manager = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
+//      for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+//        if (    service.service.getClassName().equals(SystemListFetcher.class.toString()) ||
+//                service.service.getClassName().equals(NetworkListFetcher.class.toString()) ||
+//                service.service.getClassName().equals(LocationFetcher.class.toString()))
+//          allComplete = false;
+//      }
+//    }while(!allComplete);
+//  }
+
+  // Location Change Tracker
+//  @Subscribe(threadMode = ThreadMode.ASYNC)
+//  public void onMessageEvent(LocationResponseEvent event) {
+//    if (event.getLocation() != null) {
+//      locationDataReceived = true;
+//      this.stopService(locationFetcherService);
+//      location = event.getLocation();
+//      currentStateVector.setLatitude(location.getLatitude());
+//      currentStateVector.setLongitude(location.getLongitude());
+//      //checkDataAndSendData();
+//    }
+//  }
 
 //  @Subscribe(threadMode = ThreadMode.ASYNC)
 //  public void onMessageEvent(NetworkResponseEvent event) {
