@@ -96,6 +96,7 @@ public class PolicyEngine extends Service {
   public void onMessageEvent(ConnectionResponseEvent event) {
     // TODO: Call something to publish the data to the cloud...
     NetworkEvaluation eval =  event.getEvaluation();
+    Log.d("CEL",eval.toString());
     // TODO: Use the sample code below for publishing to the cloud
     //    Intent cloudService = new Intent(this, SendCloud.class);
     //    cloudService.putExtra("currentData", dataStoreObjectList);
@@ -108,6 +109,7 @@ public class PolicyEngine extends Service {
     // Deal With the Connection Evaluation Listener Response
       if(event.getEventName().equals(CONNECTION_EVAL_LISTENER)){
         // Start Fetching data
+        Log.d("CEL","Start fetching Data");
         Intent connctionEvalFetcherService = new Intent(this, ConnectionEvalFetcher.class);
         this.startService(connctionEvalFetcherService);
     }

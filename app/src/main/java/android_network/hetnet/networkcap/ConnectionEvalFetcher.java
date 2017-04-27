@@ -40,7 +40,6 @@ public class ConnectionEvalFetcher extends IntentService {
         NetworkEvaluation eval = new NetworkEvaluation();
         downLoadFileFromServer(sourceUrl);
         eval.setBandwidth(this.bandwidth);
-
         testNetworkLatency();
         eval.setLatency(this.latency);
         
@@ -120,15 +119,12 @@ public class ConnectionEvalFetcher extends IntentService {
             for (int i = 0; i < times; i++) {
                 beforeTime = System.currentTimeMillis();
                 boolean reachable = InetAddress.getByName(host).isReachable(timeOut);
-                Log.d(DEBUG_TAG, InetAddress.getByName(host).toString());
                 afterTime = System.currentTimeMillis();
 
                 timeSum += (afterTime - beforeTime);
             }
 
             networkLatency = timeSum / (times * 1.0);
-
-            Log.d(DEBUG_TAG, Double.toString(latency));
 
             this.latency = networkLatency;
         } catch (Exception e) {
