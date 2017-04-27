@@ -3,6 +3,7 @@ package android_network.hetnet.networkcap;
 import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Message;
 import android.util.Log;
 
 import org.greenrobot.eventbus.EventBus;
@@ -10,6 +11,7 @@ import org.greenrobot.eventbus.EventBus;
 import java.io.DataInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.net.InetAddress;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Calendar;
@@ -26,6 +28,7 @@ public class ConnectionEvalFetcher extends IntentService {
     public ConnectionEvalFetcher(){super("ConnectionEvalFetcher");}
 
     private String bandwidth;
+    private double latency;
     private String sourceUrl = "http://download.thinkbroadband.com/10MB.zip";
     @Override
     public void onCreate() {
@@ -37,6 +40,9 @@ public class ConnectionEvalFetcher extends IntentService {
         NetworkEvaluation eval = new NetworkEvaluation();
         downLoadFileFromServer(sourceUrl);
         eval.setBandwidth(this.bandwidth);
+
+        testNetworkLatency();
+        eval.setLatency(this.latency);
         
         // TODO: Implement fetcher for things we need
         EventBus.getDefault().post(new ConnectionResponseEvent(CONNECTION_EVAL_FETCHER, eval, Calendar.getInstance().getTime()));
@@ -94,6 +100,39 @@ public class ConnectionEvalFetcher extends IntentService {
             {
                 Log.e("11ERROR", "Failed to close urlInputStream(From finally block)..");
             }
+        }
+    }
+
+
+    private void testNetworkLatency() {
+        String host = "www.google.com";
+
+        long timeSum = 0;
+        long beforeTime;
+        long afterTime;
+
+        int timeOut = 8000;
+        int times = 3;
+
+        double networkLatency;
+
+        try {
+            for (int i = 0; i < times; i++) {
+                beforeTime = System.currentTimeMillis();
+                boolean reachable = InetAddress.getByName(host).isReachable(timeOut);
+                Log.d(DEBUG_TAG, InetAddress.getByName(host).toString());
+                afterTime = System.currentTimeMillis();
+
+                timeSum += (afterTime - beforeTime);
+            }
+
+            networkLatency = timeSum / (times * 1.0);
+
+            Log.d(DEBUG_TAG, Double.toString(latency));
+
+            this.latency = networkLatency;
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
