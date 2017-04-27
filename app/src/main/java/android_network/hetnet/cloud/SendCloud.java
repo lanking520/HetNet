@@ -58,6 +58,7 @@ public class SendCloud extends IntentService {
     temp.put("Time", current.toString());
     temp.put("Macaddr", Macaddr);
     temp.put("Latency", String.valueOf(latency));
+    temp.put("Bandwidth", Bandwidth);
     JSONObject submission = new JSONObject(temp);
     try {
       Log.i("SendCloud",submission.toString());
