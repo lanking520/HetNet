@@ -3,6 +3,8 @@ package android_network.hetnet.networkcap;
 import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.Message;
 import android.util.Log;
 
@@ -29,22 +31,31 @@ public class ConnectionEvalFetcher extends IntentService {
 
     private String bandwidth;
     private double latency;
+    private String MAC_ADDR;
     private String sourceUrl = "http://download.thinkbroadband.com/10MB.zip";
     @Override
     public void onCreate() {
+        Log.i("CEL","Start Handele Connection Fetcher");
         super.onCreate();
     }
 
     @Override
     protected void onHandleIntent(Intent intent) {
+        Log.i("CEL","Start Handele Connection Fetcher");
         NetworkEvaluation eval = new NetworkEvaluation();
         downLoadFileFromServer(sourceUrl);
         eval.setBandwidth(this.bandwidth);
         testNetworkLatency();
         eval.setLatency(this.latency);
-        
-        // TODO: Implement fetcher for things we need
+        getMacId();
+        eval.setMAC_ADDR(this.MAC_ADDR);
         EventBus.getDefault().post(new ConnectionResponseEvent(CONNECTION_EVAL_FETCHER, eval, Calendar.getInstance().getTime()));
+    }
+
+    public void getMacId() {
+        WifiManager wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
+        WifiInfo wifiInfo = wifiManager.getConnectionInfo();
+        MAC_ADDR = wifiInfo.getBSSID();
     }
 
     private void downLoadFileFromServer(String sourceUrl) {
@@ -125,9 +136,10 @@ public class ConnectionEvalFetcher extends IntentService {
             }
 
             networkLatency = timeSum / (times * 1.0);
-
+            Log.d("CEL",Double.toString(networkLatency));
             this.latency = networkLatency;
         } catch (Exception e) {
+            Log.d("CEL","ERROR: Some Error comes out from testNetwork Latency");
             e.printStackTrace();
         }
     }

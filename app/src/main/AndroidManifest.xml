@@ -67,7 +67,7 @@
         <service
             android:name=".networkcap.ConnectionListener"
             android:exported="false"/>
-        <service android:name=".networkcap.ConnectionListener"
+        <service android:name=".networkcap.ConnectionEvalFetcher"
             android:exported="false"/>
 
         <activity

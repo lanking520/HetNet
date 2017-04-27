@@ -98,16 +98,16 @@ public class PolicyEngine extends Service {
     NetworkEvaluation eval =  event.getEvaluation();
     Log.d("CEL",eval.toString());
     // TODO: Use the sample code below for publishing to the cloud
-    //    Intent cloudService = new Intent(this, SendCloud.class);
-    //    cloudService.putExtra("currentData", dataStoreObjectList);
-    //    this.startService(cloudService);
-
+    Intent cloudService = new Intent(this, SendCloud.class);
+    cloudService.putExtra("currentData", eval);
+    this.startService(cloudService);
   }
 
   @Subscribe(threadMode = ThreadMode.ASYNC)
   public void onMessageEvent(TriggerEvent event) {
     // Deal With the Connection Evaluation Listener Response
-      if(event.getEventName().equals(CONNECTION_EVAL_LISTENER)){
+      Log.i("CEL","Current Event "+event.getEventName());
+      if(event.getEventName().equals("Connection Changed")){
         // Start Fetching data
         Log.d("CEL","Start fetching Data");
         Intent connctionEvalFetcherService = new Intent(this, ConnectionEvalFetcher.class);

@@ -20,6 +20,7 @@ import java.util.Set;
 
 import android_network.hetnet.data.DataStoreObject;
 import android_network.hetnet.data.Network;
+import android_network.hetnet.data.NetworkEvaluation;
 import android_network.hetnet.system.ApplicationList;
 import android_network.hetnet.system.SystemList;
 
@@ -41,42 +42,23 @@ public class SendCloud extends IntentService {
 
   @Override
   protected void onHandleIntent(Intent intent) {
-    android_id= Secure.getString(this.getContentResolver(), Secure.ANDROID_ID);
-    ArrayList<DataStoreObject> dataStoreObjectList = (ArrayList) intent.getSerializableExtra("currentData");
-    DataStoreObject tempdata = dataStoreObjectList.get(0);
+    NetworkEvaluation eval = (NetworkEvaluation) intent.getSerializableExtra("currentData");
     Date curr= Calendar.getInstance().getTime();
     try {
-      NetworkPoster(tempdata.getListOfNetworks(), curr, android_id, tempdata.getLongitude(), tempdata.getLatitude(), PreUrl+"/network");
-      //SystemPoster(tempdata.getSystemList(), curr, android_id, PreUrl+"/uploadappdetl");
+      // NetworkPoster(tempdata.getListOfNetworks(), curr, android_id, tempdata.getLongitude(), tempdata.getLatitude(), PreUrl+"/network");
+      // SystemPoster(tempdata.getSystemList(), curr, android_id, PreUrl+"/uploadappdetl");
+      NetworkEvalPoster(curr, eval.getBandwidth(), eval.getLatency(), eval.getMAC_ADDR(), PreUrl+"/neteval");
     } catch (Exception e) {
       e.printStackTrace();
     }
   }
 
-  private void NetworkPoster(List<Network> networks, Date current, String DeviceID, double Longtitue, double Latitude , String url) throws JSONException {
+  private void NetworkEvalPoster(Date current, String Bandwidth, double latency, String Macaddr, String url){
     Map<String, Object> temp = new HashMap<>();
     temp.put("Time", current.toString());
-    temp.put("device_id", DeviceID);
-    temp.put("location", String.valueOf(Longtitue)+","+String.valueOf(Latitude));
-    JSONArray passednetwork = new JSONArray();
+    temp.put("Macaddr", Macaddr);
+    temp.put("Latency", String.valueOf(latency));
     JSONObject submission = new JSONObject(temp);
-    Set<String> networkClean = new HashSet<>();
-    for(Network net : networks){
-      if(!networkClean.contains(net.getNetworkSSID())){
-        networkClean.add(net.getNetworkSSID());
-        Map<String, Object> tempnet = new HashMap<>();
-        tempnet.put("bandwidth", net.getBandwidth());
-        //tempnet.put("Cost", net.getCost());
-        tempnet.put("ssid", net.getNetworkSSID());
-        tempnet.put("security", net.getSecurityProtocol());
-        //tempnet.put("SignalFrequency", net.getSignalFrequency());
-        //tempnet.put("TimeToConnect", net.getTimeToConnect());
-        tempnet.put("avgss", net.getSignalStrength());
-        passednetwork.put(new JSONObject(tempnet));
-      }
-    }
-    submission.put("Networks", passednetwork);
-
     try {
       Log.i("SendCloud",submission.toString());
       cloudsender.POST(url, submission.toString());
@@ -85,34 +67,67 @@ public class SendCloud extends IntentService {
     }
   }
 
-  private void SystemPoster(SystemList systems, Date current, String DeviceID, String url) throws JSONException {
-    Map<String, Object> holder = new HashMap<>();
-    holder.put("Time", current.toString());
-    holder.put("device_id", DeviceID);
-    holder.put("type","CPUBat");
-    JSONArray applications = new JSONArray();
-    JSONObject submission = new JSONObject(holder);
-    Map<Integer, ApplicationList> temp = systems.getApplicationList();
-    for(ApplicationList app : temp.values()){
-      Map<String, Object> sys = new HashMap<>();
-      sys.put("ProcessName",app.getProcessName());
-      sys.put("CpuUsage", app.getCpuUsage());
-      //sys.put("RxBytes",app.getRxBytes());
-      //sys.put("TxBytes",app.getTxBytes());
-      //sys.put("PrivateClean",app.getPrivateClean());
-      sys.put("BatteryPercent",app.getBatteryPercent());
-      //sys.put("Uss",app.getUss());
-      //sys.put("Pss",app.getPss());
-      applications.put(new JSONObject(sys));
-    }
-    submission.put("Applications", applications);
-    try {
-      Log.i("SendCloud",submission.toString());
-      cloudsender.POST(url, submission.toString());
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-  }
+
+//  private void NetworkPoster(List<Network> networks, Date current, String DeviceID, double Longtitue, double Latitude , String url) throws JSONException {
+//    Map<String, Object> temp = new HashMap<>();
+//    temp.put("Time", current.toString());
+//    temp.put("device_id", DeviceID);
+//    temp.put("location", String.valueOf(Longtitue)+","+String.valueOf(Latitude));
+//    JSONArray passednetwork = new JSONArray();
+//    JSONObject submission = new JSONObject(temp);
+//    Set<String> networkClean = new HashSet<>();
+//    for(Network net : networks){
+//      if(!networkClean.contains(net.getNetworkSSID())){
+//        networkClean.add(net.getNetworkSSID());
+//        Map<String, Object> tempnet = new HashMap<>();
+//        tempnet.put("bandwidth", net.getBandwidth());
+//        //tempnet.put("Cost", net.getCost());
+//        tempnet.put("ssid", net.getNetworkSSID());
+//        tempnet.put("security", net.getSecurityProtocol());
+//        //tempnet.put("SignalFrequency", net.getSignalFrequency());
+//        //tempnet.put("TimeToConnect", net.getTimeToConnect());
+//        tempnet.put("avgss", net.getSignalStrength());
+//        passednetwork.put(new JSONObject(tempnet));
+//      }
+//    }
+//    submission.put("Networks", passednetwork);
+//
+//    try {
+//      Log.i("SendCloud",submission.toString());
+//      cloudsender.POST(url, submission.toString());
+//    } catch (Exception e) {
+//      e.printStackTrace();
+//    }
+//  }
+//
+//  private void SystemPoster(SystemList systems, Date current, String DeviceID, String url) throws JSONException {
+//    Map<String, Object> holder = new HashMap<>();
+//    holder.put("Time", current.toString());
+//    holder.put("device_id", DeviceID);
+//    holder.put("type","CPUBat");
+//    JSONArray applications = new JSONArray();
+//    JSONObject submission = new JSONObject(holder);
+//    Map<Integer, ApplicationList> temp = systems.getApplicationList();
+//    for(ApplicationList app : temp.values()){
+//      Map<String, Object> sys = new HashMap<>();
+//      sys.put("ProcessName",app.getProcessName());
+//      sys.put("CpuUsage", app.getCpuUsage());
+//      //sys.put("RxBytes",app.getRxBytes());
+//      //sys.put("TxBytes",app.getTxBytes());
+//      //sys.put("PrivateClean",app.getPrivateClean());
+//      sys.put("BatteryPercent",app.getBatteryPercent());
+//      //sys.put("Uss",app.getUss());
+//      //sys.put("Pss",app.getPss());
+//      applications.put(new JSONObject(sys));
+//    }
+//    submission.put("Applications", applications);
+//    try {
+//      Log.i("SendCloud",submission.toString());
+//      cloudsender.POST(url, submission.toString());
+//    } catch (Exception e) {
+//      e.printStackTrace();
+//    }
+//  }
 
 
 
