@@ -5,10 +5,14 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.location.Location;
 import android.location.LocationManager;
+import android.net.TrafficStats;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.support.v4.app.ActivityCompat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,12 +26,30 @@ import android.widget.Spinner;
 import android.widget.TableLayout;
 import android.widget.TextView;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import android_network.hetnet.cloud.HttpService;
+import android_network.hetnet.data.Network;
+import android_network.hetnet.vpn_service.DatabaseHelper;
 
 public class AddPolicyActivity extends Activity {
+
+    private String PreUrl= "http://34.201.21.219:8111";
 
     EditText locationRecord;
     Spinner networks;
@@ -38,6 +60,7 @@ public class AddPolicyActivity extends Activity {
     Button submitAN;
     Location location;
     HttpService cloudsender;
+
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -72,16 +95,59 @@ public class AddPolicyActivity extends Activity {
 
   private List<String> getNetworks(){
       List<String> networks = new ArrayList<>();
-      // TODO: Fetch Networks GET
+      // TODO: Fetch Networks GET, need to modify getallssid API to JSONArray
+
+      URL url;
+      HttpURLConnection urlConnection = null;
+      try {
+
+          url = new URL("http://34.201.21.219:8111/network/getallssid");
+
+          urlConnection = (HttpURLConnection) url.openConnection();
+
+          InputStream in = urlConnection.getInputStream();
+
+          String resp = readStream(in);
+
+          JSONObject jsonObject = new JSONObject(resp);
+
+          JSONArray array = jsonObject.getJSONArray("ssid");
+
+          for (int i = 0; i < array.length(); i++) {
+              String network = array.getJSONObject(i).getString("post_id");
+              networks.add(network);
+          }
+
+
+      } catch (Exception e) {
+          e.printStackTrace();
+      } finally {
+          if (urlConnection != null) {
+              urlConnection.disconnect();
+          }
+      }
+
       networks.add("Highest Banwidth");
       networks.add("Lowest Latency");
       return networks;
   };
 
   private List<String> getApp(){
-      List<String> app = new ArrayList<>();
+      Set<String> set = new HashSet<>();
+      List<String> apps = new ArrayList<>();
       // TODO: Get Apps
-      return app;
+      Cursor cursor = DatabaseHelper.getInstance(this).getAccess();
+      cursor.moveToFirst();
+      while (cursor.isAfterLast() == false)
+      {
+          int colUid = cursor.getColumnIndex("uid");
+          int uid = (cursor.isNull(colUid) ? -1 : cursor.getInt(colUid));
+          String appName = this.getPackageManager().getNameForUid(uid);
+          set.add(appName);
+          cursor.moveToNext();
+      }
+      apps.addAll(set);
+      return apps;
   };
 
     public void getLocation() {
@@ -96,19 +162,67 @@ public class AddPolicyActivity extends Activity {
   private Button.OnClickListener submitLNL = new Button.OnClickListener(){
         @Override
         public void onClick(View v) {
+            String url = "http://34.201.21.219:8111/event/getmacidbyprefbyloc";
             String locname = locationRecord.getText().toString();
             String network = networks.getSelectedItem().toString();
             String currloc = String.valueOf(location.getLongitude())+","+String.valueOf(location.getLatitude());
             // TODO: POST TO CLOUD
+            Map<String, Object> temp = new HashMap<>();
+            temp.put("locname", locname);
+            temp.put("network", network);
+            temp.put("currloc", currloc);
+            JSONObject submission = new JSONObject(temp);
+
+            try {
+                Log.i("SendCloud",submission.toString());
+                cloudsender.POST(url, submission.toString());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
   };
 
   private Button.OnClickListener submitANL = new Button.OnClickListener(){
         @Override
         public void onClick(View v) {
+            String url = "http://34.201.21.219:8111/event/getmacidbyprefbyuidloc";
             String network = networks2.getSelectedItem().toString();
             String app = appspin.getSelectedItem().toString();
-            //TODO: POST TO CLOUD
+            // TODO: POST TO CLOUD
+            Map<String, Object> temp = new HashMap<>();
+            temp.put("network", network);
+            temp.put("app", app);
+            JSONObject submission = new JSONObject(temp);
+
+            try {
+                Log.i("SendCloud",submission.toString());
+                cloudsender.POST(url, submission.toString());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
   };
+
+    private String readStream(InputStream in) {
+        BufferedReader reader = null;
+        StringBuffer response = new StringBuffer();
+        try {
+            reader = new BufferedReader(new InputStreamReader(in));
+            String line = "";
+            while ((line = reader.readLine()) != null) {
+                response.append(line);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return response.toString();
+    }
 }
