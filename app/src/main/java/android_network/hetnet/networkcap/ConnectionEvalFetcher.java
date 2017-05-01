@@ -35,7 +35,7 @@ public class ConnectionEvalFetcher extends IntentService {
     private String bandwidth;
     private double latency;
     private String MAC_ADDR;
-    private String sourceUrl = "http://download.thinkbroadband.com/10MB.zip";
+    private String sourceUrl = "http://download.thinkbroadband.com/5MB.zip";
 
     @Override
     public void onCreate() {
