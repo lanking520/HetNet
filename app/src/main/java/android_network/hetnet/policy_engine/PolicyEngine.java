@@ -74,8 +74,9 @@ public class PolicyEngine extends Service {
     //Intent systemEventTrackerService = new Intent(this, SystemEventTracker.class);
     //this.startService(systemEventTrackerService);
 
-    //Intent locationEventTrackerService = new Intent(this, LocationEventTracker.class);
-    //this.startService(locationEventTrackerService);
+    Intent locationEventTrackerService = new Intent(this, LocationEventTracker.class);
+    this.startService(locationEventTrackerService);
+
     Intent connectionListenerService = new Intent(this, ConnectionListener.class);
     this.startService(connectionListenerService);
   }
@@ -112,6 +113,10 @@ public class PolicyEngine extends Service {
         Log.d("CEL","Start fetching Data");
         Intent connctionEvalFetcherService = new Intent(this, ConnectionEvalFetcher.class);
         this.startService(connctionEvalFetcherService);
+    }
+    else if(event.getEventName().equals("Location Changed")){
+        // TODO: Tell user which network to change to
+        // Call the APIs
     }
   }
 

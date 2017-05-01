@@ -13,6 +13,7 @@ public class Network implements Serializable, Cloneable {
   private double cost;
   private boolean currentNetwork;
   private String speed;
+  private String macAddress;
 
   public String getNetworkSSID() {
     return networkSSID;
@@ -140,4 +141,11 @@ public class Network implements Serializable, Cloneable {
   }
 
 
+  public void setMacAddress(String macAddress) {
+    this.macAddress = macAddress;
+  }
+
+  public String getMacAddress() {
+    return macAddress;
+  }
 }

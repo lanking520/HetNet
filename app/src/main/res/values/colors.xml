@@ -24,7 +24,7 @@
 
     <color name="colorAmberPrimary">#FFC107</color>
     <color name="colorAmberPrimaryDark">#FFA000</color>
-    <color name="colorAmberAccent">#448AFF</color>
+    <color name="colorAmberAccent">#448aff</color>
     <color name="colorAmberOn">#448AFF</color>
     <color name="colorAmberOff">#FFC107</color>
 
@@ -43,5 +43,5 @@
     <color name="colorSend">#FF0000</color>
     <color name="colorReceive">#0000FF</color>
 
-    <color name="colorGrayed">#AAAAAA</color>
+    <color name="colorGrayed">#aaaaaa</color>
 </resources>

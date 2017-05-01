@@ -1,8 +1,14 @@
 package android_network.hetnet.cloud;
 
+import android.Manifest;
 import android.app.IntentService;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationManager;
 import android.provider.Settings.Secure;
+import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 
 import org.json.JSONArray;
@@ -28,7 +34,7 @@ public class SendCloud extends IntentService {
   private static final String TAG = "SendCloud";
 
   private String PreUrl= "http://34.201.21.219:8111";
-  private String android_id;
+  private Location location;
   private HttpService cloudsender = new HttpService();
 
   public SendCloud() {super("SendCloud");}
@@ -44,21 +50,23 @@ public class SendCloud extends IntentService {
   protected void onHandleIntent(Intent intent) {
     NetworkEvaluation eval = (NetworkEvaluation) intent.getSerializableExtra("currentData");
     Date curr= Calendar.getInstance().getTime();
+    getLocation();
     try {
       // NetworkPoster(tempdata.getListOfNetworks(), curr, android_id, tempdata.getLongitude(), tempdata.getLatitude(), PreUrl+"/network");
       // SystemPoster(tempdata.getSystemList(), curr, android_id, PreUrl+"/uploadappdetl");
-      NetworkEvalPoster(curr, eval.getBandwidth(), eval.getLatency(), eval.getMAC_ADDR(), PreUrl+"/neteval");
+      NetworkEvalPoster(curr, eval.getBandwidth(), eval.getLatency(), eval.getMAC_ADDR(),location.getLongitude(),location.getLatitude(), PreUrl+"/neteval");
     } catch (Exception e) {
       e.printStackTrace();
     }
   }
 
-  private void NetworkEvalPoster(Date current, String Bandwidth, double latency, String Macaddr, String url){
+  private void NetworkEvalPoster(Date current, String Bandwidth, double latency, String Macaddr, double longitude, double latitude, String url){
     Map<String, Object> temp = new HashMap<>();
     temp.put("Time", current.toString());
     temp.put("Macaddr", Macaddr);
     temp.put("Latency", String.valueOf(latency));
     temp.put("Bandwidth", Bandwidth);
+    temp.put("Location", String.valueOf(longitude)+","+String.valueOf(latitude));
     JSONObject submission = new JSONObject(temp);
     try {
       Log.i("SendCloud",submission.toString());
@@ -68,6 +76,14 @@ public class SendCloud extends IntentService {
     }
   }
 
+  public void getLocation() {
+    LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+    Context context = getApplicationContext();
+    if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+            || ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+      location = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+    }
+  }
 
 //  private void NetworkPoster(List<Network> networks, Date current, String DeviceID, double Longtitue, double Latitude , String url) throws JSONException {
 //    Map<String, Object> temp = new HashMap<>();

@@ -57,7 +57,6 @@ public class AppDataService extends IntentService {
     TelephonyManager telephonyManager;
     List<Network> networkList = new ArrayList<>();
     boolean wifiDataReceived = false;
-    TestSpeed speeder = new TestSpeed();
 
     static long startT;
     static long endT;
@@ -83,12 +82,12 @@ public class AppDataService extends IntentService {
         android_id= Settings.Secure.getString(this.getContentResolver(), Settings.Secure.ANDROID_ID);
         Date curr= Calendar.getInstance().getTime();
         //speeder.startDownLoad();
-        Log.i("NETWORK INFO",networkList.toString());
-        Log.i("Location INFO", location.toString());
+        // Log.i("NETWORK INFO",networkList.toString());
+        // Log.i("Location INFO", location.toString());
 
         try {
             NetworkPoster(networkList, curr, android_id, location.getLongitude(), location.getLatitude(), PreUrl+"/network");
-            TrafficPoster(PreUrl+"/appdata");
+            TrafficPoster(PreUrl+"/appdata", location.getLongitude(), location.getLatitude());
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -110,6 +109,7 @@ public class AppDataService extends IntentService {
                 //tempnet.put("Cost", net.getCost());
                 tempnet.put("ssid", net.getNetworkSSID());
                 tempnet.put("security", net.getSecurityProtocol());
+                tempnet.put("macid", net.getMacAddress());
                 //tempnet.put("SignalFrequency", net.getSignalFrequency());
                 //tempnet.put("TimeToConnect", net.getTimeToConnect());
                 tempnet.put("avgss", net.getSignalStrength());
@@ -126,7 +126,7 @@ public class AppDataService extends IntentService {
         }
     }
 
-    private void TrafficPoster(String url) throws JSONException {
+    private void TrafficPoster(String url, double longitude, double latitude) throws JSONException {
 
         JSONArray jsonArray = new JSONArray();
 
@@ -135,6 +135,7 @@ public class AppDataService extends IntentService {
         holder.put("Time", curr.toString());
         android_id= Settings.Secure.getString(this.getContentResolver(), Settings.Secure.ANDROID_ID);
         holder.put("device_id", android_id);
+        holder.put("location", String.valueOf(longitude)+","+String.valueOf(latitude));
         holder.put("type","APPData");
         JSONObject submission = new JSONObject(holder);
         HashSet<Integer> hash = new HashSet<>();
@@ -283,7 +284,8 @@ public class AppDataService extends IntentService {
             List<ScanResult> wifiList = wifiManager.getScanResults();
             // gets maximum network speed
             double max_speed = wifiManager.getConnectionInfo().getLinkSpeed();
-
+            String Local_SSID = wifiManager.getConnectionInfo().getSSID();
+            String Mac = wifiManager.getConnectionInfo().getBSSID();
             for (ScanResult result : wifiList) {
 
                 Network network = new Network();
@@ -309,6 +311,12 @@ public class AppDataService extends IntentService {
                 // this class not used atm can be removed
                 //NetworkAdditionalInfo.getTimeToConnect(network);
 
+                if(result.SSID.equals(Local_SSID)){
+                    network.setMacAddress(Mac);
+                }
+                else{
+                    network.setMacAddress(null);
+                }
 
                 network.setCost(0.0);
 
