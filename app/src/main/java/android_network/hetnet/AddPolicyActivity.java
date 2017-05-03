@@ -58,7 +58,7 @@ public class AddPolicyActivity extends Activity {
     Spinner networks;
     Spinner networks2;
     Spinner appspin;
-    private static Context mycontext;
+    private Context mycontext = this;
     Button submitLN;
     Button submitAN;
     Location location;
@@ -74,15 +74,15 @@ public class AddPolicyActivity extends Activity {
       networks2 = (Spinner) findViewById(R.id.NetworkSpin2);
       appspin = (Spinner) findViewById(R.id.AppSpin);
       List<String> tempnet = getNetworks();
-      ProgressDialog dialog=new ProgressDialog(mycontext);
-      dialog.setMessage("Loading Networks...");
-      dialog.setCancelable(false);
-      dialog.setInverseBackgroundForced(false);
-      dialog.show();
-      while(tempnet != null){
+//      ProgressDialog dialog=new ProgressDialog(mycontext);
+//      dialog.setMessage("Loading Networks...");
+//      dialog.setCancelable(false);
+//      dialog.setInverseBackgroundForced(false);
+//      dialog.show();
+      while(tempnet.size() == 0){
           ;
       }
-      dialog.hide();
+//      dialog.hide();
       networks.setAdapter(constructSpinner(tempnet));
       networks2.setAdapter(constructSpinner(tempnet));
       appspin.setAdapter(constructSpinner(getApp()));
