@@ -2,6 +2,9 @@ package android_network.hetnet.cloud;
 
 import android.os.AsyncTask;
 import android.util.Log;
+import android.widget.Toast;
+
+import android_network.hetnet.MainActivity;
 
 /**
  * Created by lanking on 03/05/2017.
