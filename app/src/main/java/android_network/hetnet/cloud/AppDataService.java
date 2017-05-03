@@ -97,7 +97,7 @@ public class AppDataService extends IntentService {
         Map<String, Object> temp = new HashMap<>();
         temp.put("Time", current.toString());
         temp.put("device_id", DeviceID);
-        temp.put("location", String.valueOf(Longtitue)+","+String.valueOf(Latitude));
+        temp.put("Location", String.valueOf(Longtitue)+","+String.valueOf(Latitude));
         JSONArray passednetwork = new JSONArray();
         JSONObject submission = new JSONObject(temp);
         Set<String> networkClean = new HashSet<>();
@@ -135,7 +135,7 @@ public class AppDataService extends IntentService {
         holder.put("Time", curr.toString());
         android_id= Settings.Secure.getString(this.getContentResolver(), Settings.Secure.ANDROID_ID);
         holder.put("device_id", android_id);
-        holder.put("location", String.valueOf(longitude)+","+String.valueOf(latitude));
+        holder.put("Location", String.valueOf(longitude)+","+String.valueOf(latitude));
         holder.put("type","APPData");
         JSONObject submission = new JSONObject(holder);
         HashSet<Integer> hash = new HashSet<>();

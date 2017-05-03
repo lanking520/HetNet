@@ -69,6 +69,7 @@ public class AddPolicyActivity extends Activity {
   protected void onCreate(Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
       setContentView(R.layout.activity_addpolicy_pg1);
+      getLocation();
       locationRecord = (EditText) findViewById(R.id.LocationRecorder);
       networks = (Spinner) findViewById(R.id.NetworkSpin);
       networks2 = (Spinner) findViewById(R.id.NetworkSpin2);
@@ -121,6 +122,7 @@ public class AddPolicyActivity extends Activity {
 
           String resp = readStream(in);
 
+          Log.i("GET Info",resp);
           JSONObject jsonObject = new JSONObject(resp);
 
           JSONArray array = jsonObject.getJSONArray("ssid");
