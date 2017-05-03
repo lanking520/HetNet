@@ -311,12 +311,12 @@ public class AppDataService extends IntentService {
                 // this class not used atm can be removed
                 //NetworkAdditionalInfo.getTimeToConnect(network);
 
-                if(result.SSID.equals(Local_SSID)){
-                    network.setMacAddress(Mac);
-                }
-                else{
-                    network.setMacAddress(null);
-                }
+//                if(result.SSID.equals(Local_SSID)){
+//                    network.setMacAddress(Mac);
+//                }
+//                else{
+//                    network.setMacAddress(null);
+//                }
 
                 network.setCost(0.0);
 
@@ -328,6 +328,7 @@ public class AppDataService extends IntentService {
                     connectT = endT - startT;
 
                     network.setTimeToConnect(connectT);
+                    network.setMacAddress(Mac);
                 }
                 if (!network.isCurrentNetwork()) {
                     network.setTimeToConnect(-1);
