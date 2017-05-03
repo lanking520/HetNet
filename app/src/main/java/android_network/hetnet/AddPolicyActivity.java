@@ -46,6 +46,7 @@ import java.util.Map;
 import java.util.Set;
 
 import android_network.hetnet.cloud.HttpService;
+import android_network.hetnet.cloud.PostTask;
 import android_network.hetnet.data.Network;
 import android_network.hetnet.vpn_service.DatabaseHelper;
 
@@ -191,12 +192,14 @@ public class AddPolicyActivity extends Activity {
             temp.put("time", time);
             JSONObject submission = new JSONObject(temp);
 
-            try {
-                Log.i("SendCloud",submission.toString());
-                cloudsender.POST(url, submission.toString());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            new PostTask().execute(new String[]{url, submission.toString()});
+
+//            try {
+//                Log.i("SendCloud",submission.toString());
+//                cloudsender.POST(url, submission.toString());
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
         }
   };
 
@@ -219,12 +222,14 @@ public class AddPolicyActivity extends Activity {
 
             JSONObject submission = new JSONObject(temp);
 
-            try {
-                Log.i("SendCloud",submission.toString());
-                cloudsender.POST(url, submission.toString());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            new PostTask().execute(new String[]{url, submission.toString()});
+
+//            try {
+//                Log.i("SendCloud",submission.toString());
+//                cloudsender.POST(url, submission.toString());
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
         }
   };
 
