@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
+import android.provider.Settings;
 import android.provider.Settings.Secure;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
@@ -37,6 +38,8 @@ public class SendCloud extends IntentService {
   private Location location;
   private HttpService cloudsender = new HttpService();
 
+  private String android_id;
+
   public SendCloud() {super("SendCloud");}
 
 
@@ -51,22 +54,24 @@ public class SendCloud extends IntentService {
     NetworkEvaluation eval = (NetworkEvaluation) intent.getSerializableExtra("currentData");
     Date curr= Calendar.getInstance().getTime();
     getLocation();
+    android_id= Settings.Secure.getString(this.getContentResolver(), Settings.Secure.ANDROID_ID);
     try {
       // NetworkPoster(tempdata.getListOfNetworks(), curr, android_id, tempdata.getLongitude(), tempdata.getLatitude(), PreUrl+"/network");
       // SystemPoster(tempdata.getSystemList(), curr, android_id, PreUrl+"/uploadappdetl");
-      NetworkEvalPoster(curr, eval.getBandwidth(), eval.getLatency(), eval.getMAC_ADDR(),location.getLongitude(),location.getLatitude(), PreUrl+"/neteval");
+      NetworkEvalPoster(android_id,curr, eval.getBandwidth(), eval.getLatency(), eval.getMAC_ADDR(),location.getLongitude(),location.getLatitude(), PreUrl+"/neteval");
     } catch (Exception e) {
       e.printStackTrace();
     }
   }
 
-  private void NetworkEvalPoster(Date current, String Bandwidth, double latency, String Macaddr, double longitude, double latitude, String url){
+  private void NetworkEvalPoster(String android_id, Date current, String Bandwidth, double latency, String Macaddr, double longitude, double latitude, String url){
     Map<String, Object> temp = new HashMap<>();
     temp.put("Time", current.toString());
     temp.put("Macaddr", Macaddr);
     temp.put("Latency", String.valueOf(latency));
     temp.put("Bandwidth", Bandwidth);
     temp.put("Location", String.valueOf(longitude)+","+String.valueOf(latitude));
+    temp.put("device_id",android_id);
     JSONObject submission = new JSONObject(temp);
     try {
       Log.i("SendCloud",submission.toString());
