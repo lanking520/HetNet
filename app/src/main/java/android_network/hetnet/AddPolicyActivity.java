@@ -2,6 +2,7 @@ package android_network.hetnet;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -48,6 +49,7 @@ import android_network.hetnet.cloud.HttpService;
 import android_network.hetnet.data.Network;
 import android_network.hetnet.vpn_service.DatabaseHelper;
 
+
 public class AddPolicyActivity extends Activity {
 
     private String PreUrl= "http://34.201.21.219:8111";
@@ -56,7 +58,7 @@ public class AddPolicyActivity extends Activity {
     Spinner networks;
     Spinner networks2;
     Spinner appspin;
-    Context mycontext;
+    private static Context mycontext;
     Button submitLN;
     Button submitAN;
     Location location;
@@ -72,6 +74,15 @@ public class AddPolicyActivity extends Activity {
       networks2 = (Spinner) findViewById(R.id.NetworkSpin2);
       appspin = (Spinner) findViewById(R.id.AppSpin);
       List<String> tempnet = getNetworks();
+      ProgressDialog dialog=new ProgressDialog(mycontext);
+      dialog.setMessage("Loading Networks...");
+      dialog.setCancelable(false);
+      dialog.setInverseBackgroundForced(false);
+      dialog.show();
+      while(tempnet != null){
+          ;
+      }
+      dialog.hide();
       networks.setAdapter(constructSpinner(tempnet));
       networks2.setAdapter(constructSpinner(tempnet));
       appspin.setAdapter(constructSpinner(getApp()));
