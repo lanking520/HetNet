@@ -10,6 +10,7 @@ import android.database.Cursor;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.TrafficStats;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.provider.Settings;
@@ -27,6 +28,7 @@ import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TableLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -41,6 +43,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -65,6 +68,69 @@ public class AddPolicyActivity extends Activity {
     Location location;
     HttpService cloudsender;
 
+    public class GetTask extends AsyncTask<String, Void, List<String>> {
+        @Override
+        protected List<String> doInBackground(String... datas) {
+            List<String> networks = new ArrayList<>();
+            // TODO: Fetch Networks GET, need to modify getallssid API to JSONArray
+
+            HttpURLConnection urlConnection = null;
+            try {
+
+                URL url = new URL(datas[0]);
+
+                urlConnection = (HttpURLConnection) url.openConnection();
+
+                InputStream in = urlConnection.getInputStream();
+
+                String resp = readStream(in);
+
+                Log.i("GET Info",resp);
+                JSONObject jsonObject = new JSONObject(resp);
+
+                JSONArray array = jsonObject.getJSONArray("ssid");
+
+                for (int i = 0; i < array.length(); i++) {
+                    String network = array.getJSONObject(i).getString("name");
+                    networks.add(network);
+                }
+                networks.add("Highest Banwidth");
+                networks.add("Lowest Latency");
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                if (urlConnection != null) {
+                    urlConnection.disconnect();
+                }
+            }
+
+            return networks;
+        };
+
+        protected void onPostExecute(List<String> result) {
+            if(result.size()== 0){
+                result.add("Failed to Fetch Networks at this Location!");
+            }
+            networks.setAdapter(constructSpinner(result));
+            networks2.setAdapter(constructSpinner(result));
+        };
+    };
+
+    public class SubmitNet extends PostTask{
+        @Override
+        protected void onPostExecute(String result) {
+            if(result.equals("Success!")){
+                Toast.makeText(mycontext, "Submission Success!",
+                        Toast.LENGTH_LONG).show();
+            }
+            else{
+                Toast.makeText(mycontext, "Submission Failed!",
+                        Toast.LENGTH_LONG).show();
+            }
+
+        }
+    }
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -75,18 +141,16 @@ public class AddPolicyActivity extends Activity {
       networks = (Spinner) findViewById(R.id.NetworkSpin);
       networks2 = (Spinner) findViewById(R.id.NetworkSpin2);
       appspin = (Spinner) findViewById(R.id.AppSpin);
-      List<String> tempnet = getNetworks();
+      new GetTask().execute(new String[]{"http://34.201.21.219:8111/network/getallssid"});
+//      List<String> tempnet = getNetworks();
 //      ProgressDialog dialog=new ProgressDialog(mycontext);
 //      dialog.setMessage("Loading Networks...");
 //      dialog.setCancelable(false);
 //      dialog.setInverseBackgroundForced(false);
 //      dialog.show();
-      while(tempnet.size() == 0){
-          ;
-      }
 //      dialog.hide();
-      networks.setAdapter(constructSpinner(tempnet));
-      networks2.setAdapter(constructSpinner(tempnet));
+//      networks.setAdapter(constructSpinner(tempnet));
+//      networks2.setAdapter(constructSpinner(tempnet));
       appspin.setAdapter(constructSpinner(getApp()));
       submitLN = (Button) findViewById(R.id.LNPolicySubmit);
       submitAN = (Button) findViewById(R.id.ANPolicySubmit);
@@ -193,7 +257,7 @@ public class AddPolicyActivity extends Activity {
             temp.put("time", time);
             JSONObject submission = new JSONObject(temp);
 
-            new PostTask().execute(new String[]{url, submission.toString()});
+            new SubmitNet().execute(new String[]{url, submission.toString()});
 
 //            try {
 //                Log.i("SendCloud",submission.toString());
@@ -224,7 +288,7 @@ public class AddPolicyActivity extends Activity {
 
             JSONObject submission = new JSONObject(temp);
 
-            new PostTask().execute(new String[]{url, submission.toString()});
+            new SubmitNet().execute(new String[]{url, submission.toString()});
 
 //            try {
 //                Log.i("SendCloud",submission.toString());
