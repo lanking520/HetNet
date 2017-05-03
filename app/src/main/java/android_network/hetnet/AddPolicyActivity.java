@@ -11,6 +11,7 @@ import android.location.LocationManager;
 import android.net.TrafficStats;
 import android.os.Bundle;
 import android.os.SystemClock;
+import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -114,7 +115,7 @@ public class AddPolicyActivity extends Activity {
           JSONArray array = jsonObject.getJSONArray("ssid");
 
           for (int i = 0; i < array.length(); i++) {
-              String network = array.getJSONObject(i).getString("post_id");
+              String network = array.getJSONObject(i).getString("name");
               networks.add(network);
           }
 
@@ -162,15 +163,19 @@ public class AddPolicyActivity extends Activity {
   private Button.OnClickListener submitLNL = new Button.OnClickListener(){
         @Override
         public void onClick(View v) {
-            String url = "http://34.201.21.219:8111/event/getmacidbyprefbyloc";
+            String url = "http://34.201.21.219:8111/event/setlocpref";
             String locname = locationRecord.getText().toString();
             String network = networks.getSelectedItem().toString();
             String currloc = String.valueOf(location.getLongitude())+","+String.valueOf(location.getLatitude());
+            String time = String.valueOf(System.currentTimeMillis());
+            String android_id= Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
             // TODO: POST TO CLOUD
             Map<String, Object> temp = new HashMap<>();
-            temp.put("locname", locname);
-            temp.put("network", network);
-            temp.put("currloc", currloc);
+            temp.put("loc_name", locname);
+            temp.put("pref", network);
+            temp.put("location", currloc);
+            temp.put("device_id", android_id);
+            temp.put("time", time);
             JSONObject submission = new JSONObject(temp);
 
             try {
@@ -185,13 +190,20 @@ public class AddPolicyActivity extends Activity {
   private Button.OnClickListener submitANL = new Button.OnClickListener(){
         @Override
         public void onClick(View v) {
-            String url = "http://34.201.21.219:8111/event/getmacidbyprefbyuidloc";
+            String url = "http://34.201.21.219:8111/event/setapppref";
             String network = networks2.getSelectedItem().toString();
             String app = appspin.getSelectedItem().toString();
+            String currloc = String.valueOf(location.getLongitude())+","+String.valueOf(location.getLatitude());
+            String time = String.valueOf(System.currentTimeMillis());
+            String android_id= Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
             // TODO: POST TO CLOUD
             Map<String, Object> temp = new HashMap<>();
-            temp.put("network", network);
-            temp.put("app", app);
+            temp.put("preference", network);
+            temp.put("uid", app);
+            temp.put("device_id", android_id);
+            temp.put("location", currloc);
+            temp.put("time", time);
+
             JSONObject submission = new JSONObject(temp);
 
             try {
