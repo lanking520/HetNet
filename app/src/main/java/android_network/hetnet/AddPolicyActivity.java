@@ -185,8 +185,9 @@ public class AddPolicyActivity extends Activity {
             String android_id= Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
             // TODO: POST TO CLOUD
             Map<String, Object> temp = new HashMap<>();
-            temp.put("loc_name", locname);
-            temp.put("pref", network);
+            temp.put("user_id", "test@columbia.edu");
+            temp.put("location_name", locname);
+            temp.put("preference", network);
             temp.put("location", currloc);
             temp.put("device_id", android_id);
             temp.put("time", time);
@@ -214,6 +215,7 @@ public class AddPolicyActivity extends Activity {
             String android_id= Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
             // TODO: POST TO CLOUD
             Map<String, Object> temp = new HashMap<>();
+            temp.put("user_id", "test@columbia.edu");
             temp.put("preference", network);
             temp.put("uid", app);
             temp.put("device_id", android_id);
