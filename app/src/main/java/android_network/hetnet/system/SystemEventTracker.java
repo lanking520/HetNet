@@ -113,7 +113,7 @@ public class SystemEventTracker extends Service {
           newName = getForeground();
       } else
         newName = getForeground();
-
+      Log.d(LOG_TAG,newName);
       //Fire the event and show in log
       if (!(newName.equals(m_currentName)) && !(newName.equals(""))) {
         EventBus.getDefault().post(new SystemTriggerEvent(SYSTEM_EVENT_TRACKER, newName, Calendar.getInstance().getTime()));

@@ -6,7 +6,7 @@ model {
         buildToolsVersion "25.0.2"
         defaultConfig {
             applicationId "android_network.hetnet"
-            minSdkVersion.apiLevel 14
+            minSdkVersion.apiLevel 19
             targetSdkVersion.apiLevel 25
             versionCode 1
             versionName "1.0"

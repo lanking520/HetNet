@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import android_network.hetnet.application.ApplicationDecision;
 import android_network.hetnet.cloud.DummyMachineLearningEngine;
 import android_network.hetnet.cloud.SendCloud;
 import android_network.hetnet.common.Constants;
@@ -71,8 +72,8 @@ public class PolicyEngine extends Service {
     //Intent networkEventTrackerService = new Intent(this, NetworkEventTracker.class);
     //this.startService(networkEventTrackerService);
 
-    //Intent systemEventTrackerService = new Intent(this, SystemEventTracker.class);
-    //this.startService(systemEventTrackerService);
+    Intent systemEventTrackerService = new Intent(this, SystemEventTracker.class);
+    this.startService(systemEventTrackerService);
 
     Intent locationEventTrackerService = new Intent(this, LocationEventTracker.class);
     this.startService(locationEventTrackerService);
@@ -115,10 +116,21 @@ public class PolicyEngine extends Service {
         this.startService(connctionEvalFetcherService);
     }
     else if(event.getEventName().equals("Location Changed")){
-        // TODO: Tell user which network to change to
+        Log.d("CEL","Location Fetcher Start");
+        Intent locationfetcher = new Intent(this, LocationFetcher.class);
+        this.startService(locationfetcher);
         // Call the APIs
     }
+    else{
+        String appname = event.getEventName();
+        Log.d("CEL", "Switch Foreground Application");
+        Intent applicationdecision = new Intent(this, ApplicationDecision.class);
+        applicationdecision.putExtra("appname",appname);
+        this.startService(applicationdecision);
+    }
   }
+
+
 
   // 2016: The Trigger Event Handler
 //  @Subscribe(threadMode = ThreadMode.ASYNC)

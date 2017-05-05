@@ -2,8 +2,13 @@ package android_network.hetnet.cloud;
 
 import android.util.Log;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -20,34 +25,30 @@ import java.util.Map;
 public class HttpService  {
     public HttpService(){}
 
-    public String GET(String url, Map<Object, Object> param) throws Exception{
-        HttpURLConnection httpcon;
+    public String GET(String url, Map<String, String> param) throws Exception{
         String result = null;
         String query = "";
         if (param != null){
            query = urlEncodeUTF8(param);
         }
-        //Connect
-        httpcon = (HttpURLConnection) ((new URL(url+"?"+query).openConnection()));
-        httpcon.setDoOutput(true);
-        httpcon.setRequestProperty("Accept", "application/json");
-        httpcon.setRequestMethod("GET");
-        httpcon.connect();
+        HttpURLConnection urlConnection = null;
 
-        //Read
-        BufferedReader br = new BufferedReader(new InputStreamReader(httpcon.getInputStream(), "UTF-8"));
+            URL geturl = new URL(url+"?"+query);
 
-        String line = null;
-        StringBuilder sb = new StringBuilder();
+            urlConnection = (HttpURLConnection) geturl.openConnection();
 
-        while ((line = br.readLine()) != null) {
-            sb.append(line);
+            InputStream in = urlConnection.getInputStream();
+
+        String resp = readStream(in);
+
+        if (urlConnection != null) {
+            urlConnection.disconnect();
         }
-
-        br.close();
-        result = sb.toString();
-        return result;
+        Log.d("GETRES",resp);
+        return resp;
     }
+
+
 
     public void POST(String url, String data) throws Exception {
         //System.out.println("\nUrl: "+url+"\nData: "+data+"\n");
@@ -81,7 +82,7 @@ public class HttpService  {
 
       br.close();
       result = sb.toString();
-      Log.d("RES", result);
+      Log.d("POSTRES", result);
     }
 
     private static String urlEncodeUTF8(String s) {
@@ -90,6 +91,29 @@ public class HttpService  {
         } catch (UnsupportedEncodingException e) {
             throw new UnsupportedOperationException(e);
         }
+    }
+
+    private String readStream(InputStream in) {
+        BufferedReader reader = null;
+        StringBuffer response = new StringBuffer();
+        try {
+            reader = new BufferedReader(new InputStreamReader(in));
+            String line = "";
+            while ((line = reader.readLine()) != null) {
+                response.append(line);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return response.toString();
     }
 
     private static String urlEncodeUTF8(Map<?,?> map) {

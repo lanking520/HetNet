@@ -69,6 +69,8 @@
             android:exported="false"/>
         <service android:name=".networkcap.ConnectionEvalFetcher"
             android:exported="false"/>
+        <service android:name=".application.ApplicationDecision"
+            android:exported="false"/>
 
         <activity
             android:name=".vpn_service.ActivitySettings"
