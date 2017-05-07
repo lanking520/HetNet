@@ -64,7 +64,9 @@ public class ApplicationDecision extends IntentService {
         Log.i("DEC", "----" + String.valueOf(location.getLongitude())+","+String.valueOf(location.getLatitude()));
         try {
             String decision = cloudsender.GET(PreUrl+"/event/getmacidbyprefbyuidloc",param);
-            HN.post(new DisplayToast("Switch Decision: "+ decision));
+//            Log.i("DEC", decision.charAt(10) + "");
+            if (decision.charAt(10) != '"')
+                HN.post(new DisplayToast("Suggested Network: "+ decision));
         } catch (Exception e) {
             e.printStackTrace();
         }

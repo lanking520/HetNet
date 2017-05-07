@@ -59,7 +59,7 @@ public class LocationFetcher extends IntentService {
     if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
       || ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
       Location location = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-      HN.post(new DisplayToast("Location Changed to: "+String.valueOf(location.getLatitude())+","+String.valueOf(location.getLongitude())));
+      HN.post(new DisplayToast("Location Changed to: "+String.valueOf(location.getLongitude())+","+String.valueOf(location.getLatitude())));
       EventBus.getDefault().post(new LocationResponseEvent(LOCATION_LIST_FETCHER, location, Calendar.getInstance().getTime()));
       Map<String, String> param = new HashMap<>();
       String android_id= Settings.Secure.getString(this.getContentResolver(), Settings.Secure.ANDROID_ID);
@@ -71,7 +71,8 @@ public class LocationFetcher extends IntentService {
       param.put("location",String.valueOf(location.getLongitude())+","+String.valueOf(location.getLatitude()));
       try {
         String result = cloudsender.GET(PreUrl+"/event/getmacidbyprefbyloc",param);
-        HN.post(new DisplayToast("Decision Maker: "+result));
+        if (result.charAt(10) != '"')
+          HN.post(new DisplayToast("Suggested Network: "+result));
       } catch (Exception e) {
         e.printStackTrace();
       }
