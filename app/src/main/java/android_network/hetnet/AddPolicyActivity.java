@@ -94,8 +94,8 @@ public class AddPolicyActivity extends Activity {
                     String network = array.getJSONObject(i).getString("name");
                     networks.add(network);
                 }
-                networks.add("Highest Banwidth");
-                networks.add("Lowest Latency");
+                networks.add("highest bandwidth");
+                networks.add("lowest latency");
 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -141,7 +141,7 @@ public class AddPolicyActivity extends Activity {
       networks = (Spinner) findViewById(R.id.NetworkSpin);
       networks2 = (Spinner) findViewById(R.id.NetworkSpin2);
       appspin = (Spinner) findViewById(R.id.AppSpin);
-      new GetTask().execute(new String[]{"http://34.201.21.219:8111/network/getallssid"});
+      new GetTask().execute(new String[]{"http://34.201.21.219:8111/network/getallssidbyloc?location="+String.valueOf(location.getLongitude())+"%2C"+String.valueOf(location.getLatitude())});
 //      List<String> tempnet = getNetworks();
 //      ProgressDialog dialog=new ProgressDialog(mycontext);
 //      dialog.setMessage("Loading Networks...");
@@ -206,8 +206,8 @@ public class AddPolicyActivity extends Activity {
           }
       }
 
-      networks.add("Highest Banwidth");
-      networks.add("Lowest Latency");
+      networks.add("highest bandwidth");
+      networks.add("lowest latency");
       return networks;
   };
 

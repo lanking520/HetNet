@@ -11,6 +11,7 @@ import android.net.wifi.WifiManager;
 import android.os.Handler;
 import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
+import android.util.Log;
 import android.widget.Toast;
 
 import java.util.HashMap;
@@ -60,6 +61,7 @@ public class ApplicationDecision extends IntentService {
         param.put("curr_net", MAC);
         param.put("location",String.valueOf(location.getLongitude())+","+String.valueOf(location.getLatitude()));
         param.put("uid",appname);
+        Log.i("DEC", "----" + String.valueOf(location.getLongitude())+","+String.valueOf(location.getLatitude()));
         try {
             String decision = cloudsender.GET(PreUrl+"/event/getmacidbyprefbyuidloc",param);
             HN.post(new DisplayToast("Switch Decision: "+ decision));
