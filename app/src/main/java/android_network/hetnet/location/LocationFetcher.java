@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
+import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
 import android.os.Handler;
 import android.provider.Settings;
@@ -54,6 +55,8 @@ public class LocationFetcher extends IntentService {
 
   @Override
   protected void onHandleIntent(Intent intent) {
+    WifiConfiguration wifiConfig = new WifiConfiguration();
+    WifiManager wifiManager = (WifiManager) this.getSystemService(Context.WIFI_SERVICE);
     LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
     Context context = getApplicationContext();
     if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
@@ -63,7 +66,7 @@ public class LocationFetcher extends IntentService {
       EventBus.getDefault().post(new LocationResponseEvent(LOCATION_LIST_FETCHER, location, Calendar.getInstance().getTime()));
       Map<String, String> param = new HashMap<>();
       String android_id= Settings.Secure.getString(this.getContentResolver(), Settings.Secure.ANDROID_ID);
-      WifiManager wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
+//      WifiManager wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
       String MAC = wifiManager.getConnectionInfo().getBSSID();
 
       param.put("device_id",android_id);
@@ -73,6 +76,21 @@ public class LocationFetcher extends IntentService {
         String result = cloudsender.GET(PreUrl+"/event/getmacidbyprefbyloc",param);
         if (result.charAt(10) != '"')
           HN.post(new DisplayToast("Suggested Network: "+result));
+        Log.i("DEC", result.substring(10, result.indexOf(',') - 1));
+        String ssid = result.substring(10, result.indexOf(',') - 1);
+
+        wifiConfig.SSID = String.format("\"%s\"", ssid);
+        if (ssid.equals("Kai He's iPhone")) {
+          wifiConfig.preSharedKey = String.format("\"%s\"", "15691855825");
+        } else if (ssid.equals("CSORapartment-5G") || ssid.equals("CSORapartment")) {
+          wifiConfig.preSharedKey = String.format("\"%s\"", "XL5TSTTWRV695VKS");
+        }
+
+
+        int netId = wifiManager.addNetwork(wifiConfig);
+        wifiManager.disconnect();
+        wifiManager.enableNetwork(netId, true);
+        wifiManager.reconnect();
       } catch (Exception e) {
         e.printStackTrace();
       }
