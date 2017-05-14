@@ -80,17 +80,22 @@ public class LocationFetcher extends IntentService {
         String ssid = result.substring(10, result.indexOf(',') - 1);
 
         wifiConfig.SSID = String.format("\"%s\"", ssid);
-        if (ssid.equals("Kai He's iPhone")) {
-          wifiConfig.preSharedKey = String.format("\"%s\"", "15691855825");
-        } else if (ssid.equals("CSORapartment-5G") || ssid.equals("CSORapartment")) {
-          wifiConfig.preSharedKey = String.format("\"%s\"", "XL5TSTTWRV695VKS");
+        if (ssid.equals("Columbia University") || ssid.equals("Kai He's iPhone") || ssid.equals("Shen'sIphone") || ssid.equals("CSORapartment-5G") || ssid.equals("CSORapartment")) {
+          wifiConfig.SSID = String.format("\"%s\"", ssid);
+          if (ssid.equals("Kai He's iPhone")) {
+            wifiConfig.preSharedKey = String.format("\"%s\"", "15691855825");
+          } else if (ssid.equals("Shen'sIphone")) {
+            wifiConfig.preSharedKey = String.format("\"%s\"", "personalWifi2017");
+          } else if (ssid.equals("CSORapartment-5G") || ssid.equals("CSORapartment")) {
+            wifiConfig.preSharedKey = String.format("\"%s\"", "XL5TSTTWRV695VKS");
+          }
+
+
+          int netId = wifiManager.addNetwork(wifiConfig);
+          wifiManager.disconnect();
+          wifiManager.enableNetwork(netId, true);
+          wifiManager.reconnect();
         }
-
-
-        int netId = wifiManager.addNetwork(wifiConfig);
-        wifiManager.disconnect();
-        wifiManager.enableNetwork(netId, true);
-        wifiManager.reconnect();
       } catch (Exception e) {
         e.printStackTrace();
       }
